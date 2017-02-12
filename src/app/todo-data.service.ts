@@ -1,5 +1,9 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import {Todo} from './todo';
+import { LocalStorageService } from 'angular-2-local-storage';
+
+
+let todos = [];
 
 @Injectable()
 export class TodoDataService {
@@ -7,11 +11,24 @@ export class TodoDataService {
   // Placeholder for last id so we can simulate
   // automatic incrementing of id's
   lastId: number = 0;
-
+  storage;
   // Placeholder for todo's
   todos: Todo[] = [];
-
   constructor() {
+    this.getStorage();
+  }
+
+  getStorage(){
+    var storeArray = JSON.parse(localStorage.getItem("todo"));
+    for (var i = 0; i < storeArray.length; i++){
+      this.storage = new Todo();
+      this.storage.id = storeArray[i].id;
+      this.storage.title = storeArray[i].title;
+      this.storage.complete = storeArray[i].complete;
+      this.storage.edit = storeArray[i].edit;
+      this.todos.push(this.storage);
+      this.lastId = storeArray.length -1;
+    }
   }
 
   // Simulate POST /todos
@@ -39,11 +56,18 @@ export class TodoDataService {
     Object.assign(todo, values);
     return todo;
   }
+  
+  //**
+  updateTodo(id: number): TodoDataService {
+    let todo = this.getTodoById(id);
+    return this;
+  }
 
   // Simulate GET /todos
   getAllTodos(): Todo[] {
     return this.todos;
   }
+
 
   // Simulate GET /todos/:id
   getTodoById(id: number): Todo {
